@@ -52,7 +52,7 @@ GraphicsComponent* GraphicsSystem::AddSphere( vec2 const& pos, f32 radius )
 
     if ( !smileyTextureInit )
     {
-        smileyTexture = CreateTextureFromImage( renderer, "assets/smiley.png" );
+        smileyTexture = CreateTextureFromImage( renderer, "assets/doge.png" );
         smileyTextureInit = true;
     }
     

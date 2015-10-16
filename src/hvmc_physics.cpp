@@ -2,10 +2,22 @@
 
 void RigidBody::Update( f32 dt )
 {
+    vec2 a = im * forces;
+    velocity += dt * a;
+    position += velocity;
 }
 
 void RigidBody::ApplyForce( vec2 const& f )
 {
+    forces += f;
+}
+
+void RigidBody::ResetForces()
+{
+    forces.x = 0.f;
+    forces.y = 0.f;
+    velocity.x = 0.f;
+    velocity.y = 0.f;
 }
 
 void RigidBody::ApplyImpulse( vec2 const& impulse, vec2 const& contactVector )
@@ -36,6 +48,8 @@ RigidBody* PhysicsSystem::AddSphere( vec2 const& pos, f32 radius )
     body->forces = { 0.f, 0.f };
     body->im = 1.f; // 1 kg
     body->iI = 1.f;
+    body->I = 1.f;
+    body->m = 1.f;
     body->position = pos;
     body->velocity = { 0.f, 0.f };
 
@@ -52,6 +66,8 @@ RigidBody* PhysicsSystem::AddBox( vec2 const& pos, vec2 const& dims )
     
     body->forces = { 0.f, 0.f };
     body->im = 1.f; // 1 kg
+    body->I = 1.f;
+    body->m = 1.f;
     body->position = pos;
     body->velocity = { 0.f, 0.f };
     
@@ -77,6 +93,12 @@ RigidBody* PhysicsSystem::AddWall( vec2 const& pos, vec2 const& dims )
 }
 
 void PhysicsSystem::Update( f32 dt )
-{    
+{
+    for(RigidBody* b : rigidBodies)
+    {
+        b->ApplyForce(b->m * gravity);
+        b->Update(dt);
+        b->ResetForces();
+    }
 }
 

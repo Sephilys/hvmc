@@ -1,6 +1,7 @@
 #ifndef HVMC_PHYSICS_H
 #define HVMC_PHYSICS_H
 
+#include <iostream>
 #include <vector>
 #include "hvmc_math.h"
 #include "hvmc_collisions.h"
@@ -31,9 +32,10 @@ struct RigidBody
     void Update( f32 dt );
     
     void ApplyForce( vec2 const& force );
+    void ResetForces();
     void ApplyImpulse( vec2 const& impulse, vec2 const& contactVector );
     
-    void SetKinematic();
+    void SetKinematic(); // Rend l'objet immobile (masse infinie)
     void SetGravityMode( int mode );
     
     f32 I = 0.f;  // inertia
