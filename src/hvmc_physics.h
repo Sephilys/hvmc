@@ -29,10 +29,11 @@ struct RigidBody
     RigidBody() {}
     ~RigidBody() {}
     
-    void Update( f32 dt );
+//    void Update( f32 dt );
     
     void ApplyForce( vec2 const& force );
     void ResetForces();
+    void IntegrateForces(f32 dt);
     void ApplyImpulse( vec2 const& impulse, vec2 const& contactVector );
     
     void SetKinematic(); // Rend l'objet immobile (masse infinie)
@@ -68,6 +69,8 @@ struct PhysicsSystem
     RigidBody* AddWall( vec2 const& pos, vec2 const& dims );
 
     std::vector<RigidBody*> rigidBodies;
+    std::vector<CollisionInfo*> collisions;
+
     vec2 gravity;
 };
 

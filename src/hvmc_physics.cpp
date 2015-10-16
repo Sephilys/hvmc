@@ -1,11 +1,11 @@
 #include "hvmc_physics.h"
 
-void RigidBody::Update( f32 dt )
-{
-    vec2 a = im * forces;
-    velocity += dt * a;
-    position += velocity;
-}
+//void RigidBody::Update( f32 dt )
+//{
+//    vec2 a = im * forces;
+//    velocity += dt * a;
+//    position += velocity * dt;
+//}
 
 void RigidBody::ApplyForce( vec2 const& f )
 {
@@ -14,10 +14,14 @@ void RigidBody::ApplyForce( vec2 const& f )
 
 void RigidBody::ResetForces()
 {
-    forces.x = 0.f;
-    forces.y = 0.f;
-    velocity.x = 0.f;
-    velocity.y = 0.f;
+    forces = { 0.f, 0.f };
+}
+
+void RigidBody::IntegrateForces( f32 dt )
+{
+    velocity += (forces * im) * dt;
+
+    angularVelocity += torque * dt;
 }
 
 void RigidBody::ApplyImpulse( vec2 const& impulse, vec2 const& contactVector )
@@ -97,8 +101,28 @@ void PhysicsSystem::Update( f32 dt )
     for(RigidBody* b : rigidBodies)
     {
         b->ApplyForce(b->m * gravity);
-        b->Update(dt);
-        b->ResetForces();
     }
+
+    for(RigidBody* a : rigidBodies)
+    {
+        for(RigidBody* b : rigidBodies)
+        {
+            CollisionInfo info;
+            if(Collide(a, b, info))
+            {
+                collisions.push_back(info);
+            }
+        }
+        for(RigidBody* b : rigidBodies)
+        {
+            b->IntegrateForces(dt);
+        }
+    }
+
+    // TODO : Pas sûr ce ça...
+//    for(RigidBody* b : rigidBodies)
+//    {
+//        b->ResetForces();
+//    }
 }
 
