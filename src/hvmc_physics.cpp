@@ -7,6 +7,8 @@
 //    position += velocity * dt;
 //}
 
+bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) ;
+
 void RigidBody::ApplyForce( vec2 const& f )
 {
     forces += f;
@@ -97,33 +99,85 @@ RigidBody* PhysicsSystem::AddWall( vec2 const& pos, vec2 const& dims )
     return body;
 }
 
-void PhysicsSystem::Update( f32 dt )
-{
-    for(RigidBody* b : rigidBodies)
+
+
+void PhysicsSystem::Update( f32 dt ) {
+
+    // Add gravity
+
+    for ( auto& rb : rigidBodies ) rb->forces += rb->m * gravity;
+
+    std::vector<CollisionInfo> collisions;
+    u32 count = rigidBodies.size();
+
+    // Generate contact infos
+    // NOTE: This double loop prevents testing
+    // an object against another multiple times
+    for ( u32 i = 0; i < count - 1; ++i )
     {
-        b->ApplyForce(b->m * gravity);
+        for ( u32 j = i + 1; j < count; ++i )
+        {
+            RigidBody* a = rigidBodies[i];
+            RigidBody* b = rigidBodies[j];
+            CollisionInfo info;
+        }
     }
 
-    for(RigidBody* a : rigidBodies)
+    // Test collisions, add to list if colliding
+    if ( Collide( a, b, info ) )
+        collisions.push_back( info );
+
+
+    // Integrate forces
+    for ( auto& rb : rigidBodies )
+        rb->IntegrateForces( dt );
+
+
+    // Solve contacts
+    for ( auto const& collision : collisions )
+        collision.Solve();
+
+
+    // Integrate velocities
+    for ( auto& rb : rigidBodies )
+        rb->IntegrateVelocities( dt );
+
+
+    // Clear forces
+    for ( auto& rb : rigidBodies )
     {
-        for(RigidBody* b : rigidBodies)
-        {
-            CollisionInfo info;
-            if(Collide(a, b, info))
-            {
-                collisions.push_back(info);
-            }
-        }
-        for(RigidBody* b : rigidBodies)
-        {
-            b->IntegrateForces(dt);
-        }
+        rb->forces = vec2{ 0.f, 0.f };
+        rb->torque = 0.f;
     }
+
+}
 
     // TODO : Pas sûr ce ça...
 //    for(RigidBody* b : rigidBodies)
 //    {
 //        b->ResetForces();
 //    }
-}
 
+
+
+bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
+
+    if ( a->collider.type == RIGID_BODY_BOX )
+    {
+        if ( b->collider.type == RIGID_BODY_BOX )
+            return CollideBoxBox( a, b, info );
+        else if ( b->collider.type == RIGID_BODY_SPHERE )
+            return CollideBoxSphere( a, b, info );
+    }
+
+    else if ( a->collider.type == RIGID_BODY_SPHERE )
+    {
+        if ( b->collider.type == RIGID_BODY_SPHERE )
+            return CollideSphereSphere( a, b, info );
+        else if ( b->collider.type == RIGID_BODY_BOX )
+            return CollideSphereBox( a, b, info );
+    }
+
+    // Should not get there
+    return false;
+}

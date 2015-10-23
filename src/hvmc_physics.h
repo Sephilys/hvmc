@@ -69,7 +69,7 @@ struct PhysicsSystem
     RigidBody* AddWall( vec2 const& pos, vec2 const& dims );
 
     std::vector<RigidBody*> rigidBodies;
-//    std::vector<CollisionInfo*> collisions;
+    std::vector<CollisionInfo*> collisions;
 
     vec2 gravity;
 };
