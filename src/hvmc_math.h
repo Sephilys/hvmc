@@ -21,15 +21,6 @@ typedef double f64;
 struct vec2
 {
 	f32 x, y;
-//     union
-//     {
-//         f32 v[2] = { 0 };
-// 
-//         struct
-//         {
-//             f32 x, y;
-//         };
-//     };
 };
 
 inline vec2 operator+( vec2 const& v, vec2 const& w )
@@ -145,17 +136,6 @@ struct Mat2
 {
 	f32 m00, m01;
 	f32 m10, m11;
-//     union
-//     {
-//         f32 m[2][2];
-//         f32 v[4];
-//         
-//         struct
-//         {
-//             f32 m00, m01;
-//             f32 m10, m11;
-//         };
-//     };    
 };
 
 inline Mat2 Mat2_Zeros()
