@@ -120,12 +120,14 @@ void PhysicsSystem::Update( f32 dt ) {
             RigidBody* a = rigidBodies[i];
             RigidBody* b = rigidBodies[j];
             CollisionInfo info;
+
+            // Test collisions, add to list if colliding
+            if ( Collide( a, b, info ) )
+                collisions.push_back( info );
         }
     }
 
-    // Test collisions, add to list if colliding
-    if ( Collide( a, b, info ) )
-        collisions.push_back( info );
+
 
 
     // Integrate forces
