@@ -28,7 +28,7 @@ struct CollisionInfo{
 
 };
 
-bool CollideSphereSphere( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
+bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
 
 
 

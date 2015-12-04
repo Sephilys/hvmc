@@ -15,7 +15,7 @@ double norm(vec2 vect){
 /**
  *out : CollisionInfo info
  **/
-bool CollideSphereSphere( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
+bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     double dist = sqrt ((rb1->position.x -rb2->position.x) * (rb1->position.x -rb2->position.x) + (rb1->position.y -rb2->position.y) * (rb1->position.y -rb2->position.y) );
 
@@ -36,7 +36,7 @@ bool CollideSphereSphere( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 /**
  *out : CollisionInfo info
  **/
- /*
+
 bool Collide( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info ){
 
     if (( rb1->collider.type == RIGID_BODY_SPHERE) && (rb2->collider.type == RIGID_BODY_SPHERE)){
@@ -50,4 +50,4 @@ bool Collide( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info ){
    }
     return false;
 
-}*/
+}
