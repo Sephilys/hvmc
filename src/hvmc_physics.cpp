@@ -165,7 +165,7 @@ void PhysicsSystem::Update( f32 dt ) {
 
 
 
-bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
+/*bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
 
 //    if ( a->collider.type == RIGID_BODY_BOX )
 //    {
@@ -185,4 +185,4 @@ bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
 
     // Should not get there
     return false;
-}
+}*/
