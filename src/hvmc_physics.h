@@ -34,6 +34,7 @@ struct RigidBody
     void ApplyForce( vec2 const& force );
     void ResetForces();
     void IntegrateForces(f32 dt);
+    void IntegrateVelocities(f32 dt);
     void ApplyImpulse( vec2 const& impulse, vec2 const& contactVector );
     
     void SetKinematic(); // Rend l'objet immobile (masse infinie)

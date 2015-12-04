@@ -22,8 +22,12 @@ void RigidBody::ResetForces()
 void RigidBody::IntegrateForces( f32 dt )
 {
     velocity += (forces * im) * dt;
-
     angularVelocity += torque * dt;
+}
+
+void RigidBody::IntegrateVelocities( f32 dt )
+{
+    position += velocity * dt;
 }
 
 void RigidBody::ApplyImpulse( vec2 const& impulse, vec2 const& contactVector )
@@ -104,28 +108,27 @@ RigidBody* PhysicsSystem::AddWall( vec2 const& pos, vec2 const& dims )
 void PhysicsSystem::Update( f32 dt ) {
 
     // Add gravity
-
     for ( auto& rb : rigidBodies ) rb->forces += rb->m * gravity;
 
-    std::vector<CollisionInfo> collisions;
-    u32 count = rigidBodies.size();
+//    std::vector<CollisionInfo> collisions;
+//    u32 count = rigidBodies.size();
 
-    // Generate contact infos
-    // NOTE: This double loop prevents testing
-    // an object against another multiple times
-    for ( u32 i = 0; i < count - 1; ++i )
-    {
-        for ( u32 j = i + 1; j < count; ++i )
-        {
-            RigidBody* a = rigidBodies[i];
-            RigidBody* b = rigidBodies[j];
-            CollisionInfo info;
+//    // Generate contact infos
+//    // NOTE: This double loop prevents testing
+//    // an object against another multiple times
+//    for ( u32 i = 0; i < count - 1; ++i )
+//    {
+//        for ( u32 j = i + 1; j < count; ++i )
+//        {
+//            RigidBody* a = rigidBodies[i];
+//            RigidBody* b = rigidBodies[j];
+//            CollisionInfo info;
 
-            // Test collisions, add to list if colliding
-            if ( Collide( a, b, info ) )
-                collisions.push_back( info );
-        }
-    }
+//            // Test collisions, add to list if colliding
+//            if ( Collide( a, b, info ) )
+//                collisions.push_back( info );
+//        }
+//    }
 
 
 
@@ -136,8 +139,8 @@ void PhysicsSystem::Update( f32 dt ) {
 
 
     // Solve contacts
-    for ( auto const& collision : collisions )
-        collision.Solve();
+//    for ( auto const& collision : collisions )
+//        collision.Solve();
 
 
     // Integrate velocities
@@ -154,7 +157,7 @@ void PhysicsSystem::Update( f32 dt ) {
 
 }
 
-    // TODO : Pas sûr ce ça...
+    // TODO : Pas sûr de ça...
 //    for(RigidBody* b : rigidBodies)
 //    {
 //        b->ResetForces();
@@ -164,21 +167,21 @@ void PhysicsSystem::Update( f32 dt ) {
 
 bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
 
-    if ( a->collider.type == RIGID_BODY_BOX )
-    {
-        if ( b->collider.type == RIGID_BODY_BOX )
-            return CollideBoxBox( a, b, info );
-        else if ( b->collider.type == RIGID_BODY_SPHERE )
-            return CollideBoxSphere( a, b, info );
-    }
+//    if ( a->collider.type == RIGID_BODY_BOX )
+//    {
+//        if ( b->collider.type == RIGID_BODY_BOX )
+//            return CollideBoxBox( a, b, info );
+//        else if ( b->collider.type == RIGID_BODY_SPHERE )
+//            return CollideBoxSphere( a, b, info );
+//    }
 
-    else if ( a->collider.type == RIGID_BODY_SPHERE )
-    {
-        if ( b->collider.type == RIGID_BODY_SPHERE )
-            return CollideSphereSphere( a, b, info );
-        else if ( b->collider.type == RIGID_BODY_BOX )
-            return CollideSphereBox( a, b, info );
-    }
+//    else if ( a->collider.type == RIGID_BODY_SPHERE )
+//    {
+//        if ( b->collider.type == RIGID_BODY_SPHERE )
+//            return CollideSphereSphere( a, b, info );
+//        else if ( b->collider.type == RIGID_BODY_BOX )
+//            return CollideSphereBox( a, b, info );
+//    }
 
     // Should not get there
     return false;
