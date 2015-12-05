@@ -89,17 +89,17 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
         info.interPenetrationDistance = overlapX;
 
         if (rb1sup)
-            info.contactNormal = vec2(1,0);
+            info.contactNormal = vec2{1,0};
         else
-            info.contactNormal = vec2(-1,0);
+            info.contactNormal = vec2{-1,0};
     }else{
 
         info.interPenetrationDistance = overlapY;
 
         if (rb1sup)
-            info.contactNormal = vec2(0,1);
+            info.contactNormal = vec2{0,1};
         else
-            info.contactNormal = vec2(0,-1);
+            info.contactNormal = vec2{0,-1};
     }
 
     info.rb1 = rb1;
@@ -109,9 +109,15 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     info.contactPosition = rb1->position + rb1->collider.radius * info.contactNormal;
 
+    return false;
 
 }
 
+
+void CollisionInfo::Solve() const
+{
+    rb1->ApplyForce(vec2{10, 0});
+}
 
 
 /**

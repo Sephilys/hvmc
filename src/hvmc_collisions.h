@@ -24,7 +24,7 @@ struct CollisionInfo{
         this->contactPosition = contactPoint;
     }
 
-
+    void Solve() const;
 
 };
 

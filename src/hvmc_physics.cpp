@@ -110,37 +110,37 @@ void PhysicsSystem::Update( f32 dt ) {
     // Add gravity
     for ( auto& rb : rigidBodies ) rb->forces += rb->m * gravity;
 
-//    std::vector<CollisionInfo> collisions;
-//    u32 count = rigidBodies.size();
+    std::vector<CollisionInfo> collisions;
+    u32 count = rigidBodies.size();
 
-//    // Generate contact infos
-//    // NOTE: This double loop prevents testing
-//    // an object against another multiple times
-//    for ( u32 i = 0; i < count - 1; ++i )
-//    {
-//        for ( u32 j = i + 1; j < count; ++i )
-//        {
-//            RigidBody* a = rigidBodies[i];
-//            RigidBody* b = rigidBodies[j];
-//            CollisionInfo info;
+    // Generate contact infos
+    // NOTE: This double loop prevents testing
+    // an object against another multiple times
+    for ( u32 i = 0; i < count - 1; ++i )
+    {
+        for ( u32 j = i + 1; j < count; ++j )
+        {
+            RigidBody* a = rigidBodies[i];
+            RigidBody* b = rigidBodies[j];
+            CollisionInfo info;
 
-//            // Test collisions, add to list if colliding
-//            if ( Collide( a, b, info ) )
-//                collisions.push_back( info );
-//        }
-//    }
+            // Test collisions, add to list if colliding
+            if ( Collide( a, b, info ) )
+                collisions.push_back( info );
+        }
+    }
 
 
+
+    // Solve contacts
+    for ( auto const& collision : collisions )
+        collision.Solve();
 
 
     // Integrate forces
     for ( auto& rb : rigidBodies )
         rb->IntegrateForces( dt );
 
-
-    // Solve contacts
-//    for ( auto const& collision : collisions )
-//        collision.Solve();
 
 
     // Integrate velocities
