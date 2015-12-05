@@ -17,21 +17,25 @@ void RigidBody::ApplyForce( vec2 const& f )
 void RigidBody::ResetForces()
 {
     forces = { 0.f, 0.f };
+    torque = 0.f;
 }
 
 void RigidBody::IntegrateForces( f32 dt )
 {
     velocity += (forces * im) * dt;
-    angularVelocity += torque * dt;
+    angularVelocity += (torque * iI) * dt;
 }
 
 void RigidBody::IntegrateVelocities( f32 dt )
 {
     position += velocity * dt;
+    rotation += angularVelocity * dt;
 }
 
 void RigidBody::ApplyImpulse( vec2 const& impulse, vec2 const& contactVector )
 {
+    velocity += impulse * im;
+    angularVelocity += Cross(contactVector, impulse * iI);
 }
 
 void RigidBody::SetKinematic()

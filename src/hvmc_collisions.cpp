@@ -116,7 +116,17 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
 void CollisionInfo::Solve() const
 {
-    rb1->ApplyForce(vec2{10, 0});
+//    rb1->ApplyForce(vec2{10, 0});
+//    float m_a = rb1->m;
+//    float m_b = rb2->m;
+//    vec2 v_a = rb1->velocity;
+//    vec2 v_b = rb2->velocity;
+
+//    float e = -(m_a * a_a - m_b * a_b) / (m_a * v_a - m_b * v_b);
+//    float e = 1.f;
+//    float J = (-(1 + e) * Dot(v_rel, n)) * ;
+    rb1->ApplyImpulse(-10 * contactNormal, vec2{0, 0});
+//    rb2->ApplyImpulse();
 }
 
 
