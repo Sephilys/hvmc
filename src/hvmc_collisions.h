@@ -29,6 +29,7 @@ struct CollisionInfo{
 };
 
 bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
+bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
 bool Collide( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info );
 
 

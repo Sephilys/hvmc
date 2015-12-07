@@ -45,10 +45,10 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
     double rb1YMin = rb1->position.y;
     double rb1YMax = rb1->position.y +rb1->collider.dims.y;
 
-    double rb2XMin = rb1->position.x;
-    double rb2XMax = rb1->position.x +rb1->collider.dims.x;
-    double rb2YMin = rb1->position.y;
-    double rb2YMax = rb1->position.y +rb1->collider.dims.y;
+    double rb2XMin = rb2->position.x;
+    double rb2XMax = rb2->position.x +rb2->collider.dims.x;
+    double rb2YMin = rb2->position.y;
+    double rb2YMax = rb2->position.y +rb2->collider.dims.y;
 
     bool rb1sup;//rb1 au dessus de rb2
 
@@ -89,27 +89,27 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
         info.interPenetrationDistance = overlapX;
 
         if (rb1sup)
-            info.contactNormal = vec2{1,0};
-        else
             info.contactNormal = vec2{-1,0};
+        else
+            info.contactNormal = vec2{1,0};
     }else{
 
         info.interPenetrationDistance = overlapY;
 
         if (rb1sup)
-            info.contactNormal = vec2{0,1};
-        else
             info.contactNormal = vec2{0,-1};
+        else
+            info.contactNormal = vec2{0,1};
     }
 
     info.rb1 = rb1;
     info.rb2 = rb2;
 
 
+    /*provisoire*/
+    info.contactPosition = rb1->position + rb1->collider.dims.x * info.contactNormal;
 
-    info.contactPosition = rb1->position + rb1->collider.radius * info.contactNormal;
-
-    return false;
+    return true;
 
 }
 
@@ -133,22 +133,51 @@ void CollisionInfo::Solve() const
 /**
  *out : CollisionInfo info
  **/
-
+/*
 bool Collide( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info ){
 
 
     if (( rb1->collider.type == RIGID_BODY_SPHERE) && (rb2->collider.type == RIGID_BODY_SPHERE)){
 
-        if (CollideCircleCircle(rb1, rb2, info)){
-
-            info.rb1 = rb1;
-            info.rb2 = rb2;
+        if (CollideCircleCircle(rb1, rb2, info)) {
+            std::cout<<"yop"<<std::endl;
             return true;
         }
         return false;
-   }
+    }
+    else if (( rb1->collider.type == RIGID_BODY_BOX) && (rb2->collider.type == RIGID_BODY_BOX)){
+        std::cout<<"coucou"<<std::endl;
+        if (CollideBoxBox(rb1, rb2, info)){
+            std::cout<<"ça touche"<<std::endl;
+            return true;
+        }
+        return false;
+    }
     return false;
 
 }
 
+*/
+
+bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
+
+    if ( a->collider.type == RIGID_BODY_BOX )
+    {
+        if ( b->collider.type == RIGID_BODY_BOX )
+            return CollideBoxBox( a, b, info );
+        //else if ( b->collider.type == RIGID_BODY_SPHERE )
+          //  return CollideBoxSphere( a, b, info );
+    }
+
+    else if ( a->collider.type == RIGID_BODY_SPHERE )
+    {
+        if ( b->collider.type == RIGID_BODY_SPHERE )
+            return CollideCircleCircle( a, b, info );
+        //else if ( b->collider.type == RIGID_BODY_BOX )
+          //  return CollideSphereBox( a, b, info );
+    }
+
+    // Should not get there
+    return false;
+}
 
