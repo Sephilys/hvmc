@@ -40,15 +40,15 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     double overlapX, overlapY;
 
-    double rb1XMin = rb1->position.x;
-    double rb1XMax = rb1->position.x +rb1->collider.dims.x;
-    double rb1YMin = rb1->position.y;
-    double rb1YMax = rb1->position.y +rb1->collider.dims.y;
+    double rb1XMin = rb1->position.x - rb1->collider.dims.x/2;
+    double rb1XMax = rb1->position.x + rb1->collider.dims.x/2;
+    double rb1YMin = rb1->position.y - rb1->collider.dims.y/2;
+    double rb1YMax = rb1->position.y + rb1->collider.dims.y/2;
 
-    double rb2XMin = rb2->position.x;
-    double rb2XMax = rb2->position.x +rb2->collider.dims.x;
-    double rb2YMin = rb2->position.y;
-    double rb2YMax = rb2->position.y +rb2->collider.dims.y;
+    double rb2XMin = rb2->position.x - rb2->collider.dims.x/2;
+    double rb2XMax = rb2->position.x + rb2->collider.dims.x/2;
+    double rb2YMin = rb2->position.y - rb2->collider.dims.y/2;
+    double rb2YMax = rb2->position.y + rb2->collider.dims.y/2;
 
     bool rb1sup;//rb1 au dessus de rb2
 
@@ -119,15 +119,15 @@ bool CollideCircleBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     double overlapX, overlapY;
 
-    double rb2XMin = rb2->position.x;
-    double rb2XMax = rb2->position.x +rb2->collider.dims.x;
-    double rb2YMin = rb2->position.y;
-    double rb2YMax = rb2->position.y +rb2->collider.dims.y;
+    double rb1XMin = rb1->position.x - rb1->collider.radius;
+    double rb1XMax = rb1->position.x + rb1->collider.radius;
+    double rb1YMin = rb1->position.y - rb1->collider.radius;
+    double rb1YMax = rb1->position.y + rb1->collider.radius;
 
-    double rb1XMin = rb1->position.x-rb1->collider.radius;
-    double rb1XMax = rb1->position.x+rb1->collider.radius;
-    double rb1YMin = rb1->position.y-rb1->collider.radius;
-    double rb1YMax = rb1->position.y +rb1->collider.radius;
+    double rb2XMin = rb2->position.x - rb2->collider.dims.x /2;
+    double rb2XMax = rb2->position.x + rb2->collider.dims.x /2;
+    double rb2YMin = rb2->position.y - rb2->collider.dims.y /2;
+    double rb2YMax = rb2->position.y + rb2->collider.dims.y /2;
 
     bool rb1sup;//rb1 au dessus de rb2
 
@@ -198,15 +198,15 @@ bool CollideBoxCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     double overlapX, overlapY;
 
-    double rb1XMin = rb1->position.x;
-    double rb1XMax = rb1->position.x +rb1->collider.dims.x;
-    double rb1YMin = rb1->position.y;
-    double rb1YMax = rb1->position.y +rb1->collider.dims.y;
+    double rb1XMin = rb1->position.x - rb1->collider.dims.x /2;
+    double rb1XMax = rb1->position.x + rb1->collider.dims.x /2;
+    double rb1YMin = rb1->position.y - rb1->collider.dims.y /2;
+    double rb1YMax = rb1->position.y + rb1->collider.dims.y /2;
 
-    double rb2XMin = rb2->position.x-rb2->collider.radius;
-    double rb2XMax = rb2->position.x+rb2->collider.radius;
-    double rb2YMin = rb2->position.y-rb2->collider.radius;
-    double rb2YMax = rb2->position.y +rb2->collider.radius;
+    double rb2XMin = rb2->position.x - rb2->collider.radius;
+    double rb2XMax = rb2->position.x + rb2->collider.radius;
+    double rb2YMin = rb2->position.y - rb2->collider.radius;
+    double rb2YMax = rb2->position.y + rb2->collider.radius;
 
     bool rb1sup;//rb1 au dessus de rb2
 
@@ -273,6 +273,7 @@ bool CollideBoxCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
 void CollisionInfo::Solve() const
 {
+
     // Renommage des données
 //    f32 m_a = rb1->m;
 //    f32 m_b = rb2->m;
@@ -292,15 +293,17 @@ void CollisionInfo::Solve() const
     vec2 v_rel = (v_b + Cross(w_b, r_b)) - (v_a + Cross(w_a, r_a)); //
 
 //    f32 e = -(m_a * a_a - m_b * a_b) / (m_a * v_a - m_b * v_b);
-    f32 e = 1.f;
+    f32 e = 0.8f;
 
     f32 J = (-(1 + e) * Dot(v_rel, n)) / (im_a + im_b + iI_a * Cross(r_a, n) + iI_b * Cross(r_b, n)); //
 
     vec2 j_a = -J * n;
     vec2 j_b =  J * n;
 
-    rb1->ApplyImpulse(j_a, vec2{0, 0});
-    rb2->ApplyImpulse(j_b, vec2{0, 0});
+    if (Dot(v_rel,n) < 0){
+        rb1->ApplyImpulse(j_a, contactPosition);
+        rb2->ApplyImpulse(j_b, contactPosition);
+    }
 }
 
 
@@ -315,7 +318,7 @@ bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
         if ( b->collider.type == RIGID_BODY_BOX )
             return CollideBoxBox( a, b, info );
         else if ( b->collider.type == RIGID_BODY_SPHERE )
-            return CollideBoxCircle( a, b, info );
+            return  CollideCircleBox( b, a, info );
     }
 
     else if ( a->collider.type == RIGID_BODY_SPHERE )
