@@ -99,7 +99,8 @@ RigidBody* PhysicsSystem::AddWall( vec2 const& pos, vec2 const& dims )
 
     body->im = 0.f;
     body->position = pos;
-
+	body->angularVelocity = 0.f;
+    body->velocity = { 0.f, 0.f };
     body->collider.type = RIGID_BODY_BOX;
     body->collider.dims = dims;
 
