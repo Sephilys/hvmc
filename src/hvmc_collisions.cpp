@@ -54,6 +54,8 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
     bool rb1Sup;//rb1 au dessus de rb2
     bool rb1Gauche; //rb1 est à gauche de rb2
 
+
+
     /*test d'un overlap en abscisse*/
 
     if ((rb1XMin >= rb2XMin) && (rb1XMin <= rb2XMax)){
@@ -148,7 +150,7 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
         /*calcul de la normale au contact*/
 
-        if (rb1Sup)
+        if (!rb1Gauche)
             info.contactNormal = vec2{0,-1};
         else
             info.contactNormal = vec2{0,1};
@@ -351,8 +353,8 @@ void CollisionInfo::Solve() const
     vec2 j_b =  J * n;
 
     if (Dot(v_rel,n) < 0){
-        rb1->ApplyImpulse(j_a, contactPosition);
-        rb2->ApplyImpulse(j_b, contactPosition);
+        rb1->ApplyImpulse(j_a, {0,0}/*contactPosition*/);
+        rb2->ApplyImpulse(j_b, {0,0}/*contactPosition*/);
     }
 }
 
