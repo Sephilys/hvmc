@@ -38,28 +38,32 @@ bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
 bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
-    double overlapX, overlapY;
+    double overlapX = 0.0;
+    double overlapY = 0.0;
 
-    double rb1XMin = rb1->position.x - rb1->collider.dims.x/2;
-    double rb1XMax = rb1->position.x + rb1->collider.dims.x/2;
-    double rb1YMin = rb1->position.y - rb1->collider.dims.y/2;
-    double rb1YMax = rb1->position.y + rb1->collider.dims.y/2;
+    double rb1XMin = rb1->position.x - rb1->collider.dims.x/2.f;
+    double rb1XMax = rb1->position.x + rb1->collider.dims.x/2.f;
+    double rb1YMin = rb1->position.y - rb1->collider.dims.y/2.f;
+    double rb1YMax = rb1->position.y + rb1->collider.dims.y/2.f;
 
-    double rb2XMin = rb2->position.x - rb2->collider.dims.x/2;
-    double rb2XMax = rb2->position.x + rb2->collider.dims.x/2;
-    double rb2YMin = rb2->position.y - rb2->collider.dims.y/2;
-    double rb2YMax = rb2->position.y + rb2->collider.dims.y/2;
+    double rb2XMin = rb2->position.x - rb2->collider.dims.x/2.f;
+    double rb2XMax = rb2->position.x + rb2->collider.dims.x/2.f;
+    double rb2YMin = rb2->position.y - rb2->collider.dims.y/2.f;
+    double rb2YMax = rb2->position.y + rb2->collider.dims.y/2.f;
 
-    bool rb1sup;//rb1 au dessus de rb2
+    bool rb1Sup;//rb1 au dessus de rb2
+    bool rb1Gauche; //rb1 est à gauche de rb2
 
     /*test d'un overlap en abscisse*/
 
     if ((rb1XMin >= rb2XMin) && (rb1XMin <= rb2XMax)){
         overlapX = abs(rb1XMin - rb2XMax);
+        rb1Gauche = false;
     }
 
     else if ((rb2XMin >= rb1XMin) && (rb2XMin <= rb1XMax)){
         overlapX = abs(rb2XMin - rb1XMax);
+        rb1Gauche = true;
     }
 
     else return false;
@@ -69,12 +73,12 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     if ((rb1YMin >= rb2YMin) && (rb1YMin <= rb2YMax)){
         overlapY = abs(rb1YMin - rb2YMax);
-        rb1sup = true;
+        rb1Sup = true;
     }
 
     else if ((rb2YMin >= rb1YMin) && (rb2YMin <= rb1YMax)){
         overlapY = abs(rb2YMin - rb1YMax);
-        rb1sup = false;
+        rb1Sup = false;
     }
 
     else return false;
@@ -88,15 +92,63 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
         info.interPenetrationDistance = overlapX;
 
-        if (rb1sup)
+        /*calcul du point de contact*/
+        if (rb1Sup){
+            if (rb1Gauche){
+                info.contactPosition.x = rb1->position.x + (rb1->collider.dims.x / 2.f);
+                info.contactPosition.y = rb1->position.y - (rb1->collider.dims.y / 2.f) + overlapY / 2.f ;
+            }
+            else{
+                info.contactPosition.x = rb1->position.x - (rb1->collider.dims.x / 2.f);
+                info.contactPosition.y = rb1->position.y - (rb1->collider.dims.y / 2.f) + overlapY / 2.f ;
+            }
+
+        }else{
+            if (rb1Gauche){
+                info.contactPosition.x = rb1->position.x + (rb1->collider.dims.x / 2.f);
+                info.contactPosition.y = rb1->position.y + (rb1->collider.dims.y / 2.f) - overlapY / 2.f ;
+            }
+            else{
+                info.contactPosition.x = rb1->position.x - (rb1->collider.dims.x / 2.f);
+                info.contactPosition.y = rb1->position.y + (rb1->collider.dims.y / 2.f) - overlapY / 2.f ;
+            }
+        }
+
+        /*calcul de la normale au contact*/
+        if (rb1Sup)
             info.contactNormal = vec2{-1,0};
+
         else
             info.contactNormal = vec2{1,0};
+
     }else{
 
         info.interPenetrationDistance = overlapY;
 
-        if (rb1sup)
+        /*calcul du point de contact*/
+        if (rb1Sup){
+            if (rb1Gauche){
+                info.contactPosition.x = rb1->position.x + (rb1->collider.dims.x/2.f) - overlapX/ 2.f ;
+                info.contactPosition.y = rb1->position.y - (rb1->collider.dims.y/2.f);
+            }
+            else{
+                info.contactPosition.x = rb1->position.x - (rb1->collider.dims.x/2.f) + overlapX/ 2.f ;
+                info.contactPosition.y = rb1->position.y - (rb1->collider.dims.y/2.f);
+            }
+        }else{
+            if (rb1Gauche){
+                info.contactPosition.x = rb1->position.x + (rb1->collider.dims.x/2.f) - overlapX/ 2.f ;
+                info.contactPosition.y = rb1->position.y + (rb1->collider.dims.y/2.f);
+            }
+            else{
+                info.contactPosition.x = rb1->position.x - (rb1->collider.dims.x/2.f) + overlapX/ 2.f ;
+                info.contactPosition.y = rb1->position.y + (rb1->collider.dims.y/2.f);
+            }
+        }
+
+        /*calcul de la normale au contact*/
+
+        if (rb1Sup)
             info.contactNormal = vec2{0,-1};
         else
             info.contactNormal = vec2{0,1};
@@ -104,10 +156,6 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     info.rb1 = rb1;
     info.rb2 = rb2;
-
-
-    /*provisoire*/
-    //info.contactPosition = rb1->position + rb1->collider.dims.x * info.contactNormal;
 
     return true;
 
@@ -288,8 +336,10 @@ void CollisionInfo::Solve() const
 
     vec2 n = contactNormal; //
 
-    vec2 r_a =  rb1->collider.radius * n; //
-    vec2 r_b = -rb2->collider.radius * n; //
+    //vec2 r_a =  rb1->collider.radius * n; //
+    vec2 r_a =  contactPosition - rb1->position;
+    //vec2 r_b = -rb2->collider.radius * n; //
+    vec2 r_b =  contactPosition - rb2->position;
     vec2 v_rel = (v_b + Cross(w_b, r_b)) - (v_a + Cross(w_a, r_a)); //
 
 //    f32 e = -(m_a * a_a - m_b * a_b) / (m_a * v_a - m_b * v_b);
