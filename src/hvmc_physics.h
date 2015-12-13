@@ -56,6 +56,8 @@ struct RigidBody
     f32 angularVelocity = 0.f;
 
     Collider collider;
+
+    vec2 previousPosition;
 };
 
 struct PhysicsSystem

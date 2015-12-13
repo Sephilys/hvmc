@@ -137,7 +137,7 @@ void World::SetupScene()
 
         vec2 gpos{ 1264.f, 0.f };
         vec2 gdim{ 16.f, 1280.f };
-        vec2 ppos = GraphicsToPhysicsPos( gpos ); 
+        vec2 ppos = GraphicsToPhysicsPos( gpos );
         vec2 pdim = GraphicsToPhysicsDim( gdim );
 
         ppos = ppos + vec2{ pdim.x * 0.5f, -pdim.y * 0.5f };
@@ -183,7 +183,7 @@ void World::ThrowBox(vec2 const& pos)
 {
     AddBox(pos);
     static int v = -1;
-    entities[entities.size() - 1].physics->ApplyImpulse({(v *= -1) * 15.f, 10.f}, {0.f, 0.f});
+    entities[entities.size() - 1].physics->ApplyImpulse({(v *= -1) * 155.f, 10.f}, {0.f, 0.f});
 }
 
 void World::FixBox(vec2 const& pos)
@@ -203,8 +203,9 @@ void World::ThrowBall( vec2 const& pos )
     
     entity.graphics = graphics->AddSphere( gpos, grad );
     entity.physics = physics->AddSphere( ppos, prad );
-    static int directionThrow = 1;
-    entity.physics->ApplyImpulse( { (directionThrow*=-1)*25.f, 10.f }, { 50.f, 0.f } );
+
+    static int directionThrow = -1;
+    entity.physics->ApplyImpulse( { (directionThrow *= -1) * 225.f, 10.f }, { 50.f, 0.f } );
 
     entities.push_back( entity );
 }

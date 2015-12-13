@@ -6,6 +6,18 @@
 
 struct RigidBody;
 
+struct Ray
+{
+    Ray(vec2 pos, vec2 dir) : pos(pos), dir(dir)
+    {
+        invDir.x = dir.x ? 1.0 / dir.x : INFINITY;
+        invDir.y = dir.y ? 1.0 / dir.y : INFINITY;
+    }
+    vec2 pos;
+    vec2 dir;
+    vec2 invDir;
+};
+
 struct CollisionInfo{
 
     RigidBody* rb1;
@@ -29,6 +41,9 @@ struct CollisionInfo{
     bool debug;
 };
 
+std::ostream& operator<< (std::ostream& os, vec2 v);
+
+bool continuousDetectionBox(RigidBody& box, RigidBody& body);
 bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
 bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);
 bool Collide( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info );

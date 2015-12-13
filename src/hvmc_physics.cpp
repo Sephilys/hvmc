@@ -28,6 +28,7 @@ void RigidBody::IntegrateForces( f32 dt )
 
 void RigidBody::IntegrateVelocities( f32 dt )
 {
+    previousPosition = position;
     position += velocity * dt;
     rotation += angularVelocity * dt;
 }
@@ -40,7 +41,8 @@ void RigidBody::ApplyImpulse( vec2 const& impulse, vec2 const& contactVector )
 
 void RigidBody::SetKinematic()
 {
-    I = iI = m = im = 0.f;
+    I = iI = m = im = torque = rotation = angularVelocity = 0.f;
+    forces = velocity = vec2{0.f, 0.f};
 }
 
 bool PhysicsSystem::Init()
@@ -63,7 +65,7 @@ RigidBody* PhysicsSystem::AddSphere( vec2 const& pos, f32 radius )
     body->m = 1.f;
     body->iI = 1.f;
     body->I = 1.f;
-    body->position = pos;
+    body->position = body->previousPosition = pos;
     body->velocity = { 0.f, 0.f };
 
     body->collider.type = RIGID_BODY_SPHERE;
@@ -82,7 +84,7 @@ RigidBody* PhysicsSystem::AddBox( vec2 const& pos, vec2 const& dims )
     body->m = 1.f;
     body->iI = 1.f;
     body->I = 1.f;
-    body->position = pos;
+    body->position = body->previousPosition = pos;
     body->velocity = { 0.f, 0.f };
     
     body->collider.type = RIGID_BODY_BOX;
@@ -97,7 +99,7 @@ RigidBody* PhysicsSystem::AddWall( vec2 const& pos, vec2 const& dims )
     RigidBody* body = new RigidBody;
 
     body->im = 0.f;
-    body->position = pos;
+    body->position = body->previousPosition = pos;
 	body->angularVelocity = 0.f;
     body->velocity = { 0.f, 0.f };
     body->collider.type = RIGID_BODY_BOX;
@@ -133,7 +135,9 @@ void PhysicsSystem::Update( f32 dt ) {
 
             // Test collisions, add to list if colliding
             if ( Collide( a, b, info ) )
+            {
                 collisions.push_back( info );
+            }
         }
     }
 

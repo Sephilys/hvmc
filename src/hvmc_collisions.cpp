@@ -2,6 +2,8 @@
 #include "hvmc_physics.h"
 
 
+#define Plop std::cout << "Plop" << std::endl;
+
 
 /**
 * return : norme du vecteur
@@ -37,6 +39,7 @@ bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
  **/
 
 bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
+    continuousDetectionBox(*rb1, *rb2);
 
     info.rb1 = rb1;
     info.rb2 = rb2;
@@ -62,37 +65,35 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
     //    RB2---------------------+
     //    |                       |
     //    |                       |
-    //    |        RB1-------+ . . . . . . +
-    //    |        |         |    |        |
-    //    |        |         |    |        |
-    //    +--------|---------|----+        |
-    //   Min       |         |   Max       |
-    //             |         |             |
-    //             +---------+ . . . . . . +
+    //    |        RB1-------+ . . . . . . .
+    //    |        |         |    |        .
+    //    |        |         |    |        .
+    //    +--------|---------|----+        .
+    //   Min       |         |   Max       .
+    //             |         |             .
+    //             +---------+ . . . . . . .
     //            Min       Max           Max
     //
     if((rb1XMin >= rb2XMin) && (rb1XMin <= rb2XMax))
     {
         overlapX = fabs(rb1XMin - rb2XMax);
-        rb1Gauche = false;
     }
     //
     //    RB1---------------------+
     //    |                       |
     //    |                       |
-    //    |        RB2-------+ . . . . . . +
-    //    |        |         |    |        |
-    //    |        |         |    |        |
-    //    +--------|---------|----+        |
-    //   Min       |         |   Max       |
-    //             |         |             |
-    //             +---------+ . . . . . . +
+    //    |        RB2-------+ . . . . . . .
+    //    |        |         |    |        .
+    //    |        |         |    |        .
+    //    +--------|---------|----+        .
+    //   Min       |         |   Max       .
+    //             |         |             .
+    //             +---------+ . . . . . . .
     //            Min       Max           Max
     //
     else if((rb2XMin >= rb1XMin) && (rb2XMin <= rb1XMax))
     {
         overlapX = fabs(rb2XMin - rb1XMax);
-        rb1Gauche = true;
     }
     // Aucune intersection
     else
@@ -103,38 +104,36 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
 
     // Test d'un overlap en ordonnée (Y)
     //
-    //    RB1---------------------+ Max
+    //    . . . . . . . . . . . . . Max
     //    .                       .
     //    .                       .
     //    .        RB2---------------------+ Max
-    //    +--------|--------------+ Max    |
+    //    .        |              .        |
+    //    RB1------|--------------+ Max    |
     //    |        |              |        |
     //    +--------|--------------+ Min    |
-    //             |                       |
     //             |                       |
     //             +-----------------------+ Min
     //
     if((rb1YMin >= rb2YMin) && (rb1YMin <= rb2YMax))
     {
         overlapY = fabs(rb1YMin - rb2YMax);
-        rb1Sup = true;
     }
     //
-    //    RB2---------------------+ Max
+    //    . . . . . . . . . . . . . Max
     //    .                       .
     //    .                       .
     //    .        RB1---------------------+ Max
-    //    +--------|--------------+ Max    |
+    //    .        |              .        |
+    //    RB2------|--------------+ Max    |
     //    |        |              |        |
     //    +--------|--------------+ Min    |
-    //             |                       |
     //             |                       |
     //             +-----------------------+ Min
     //
     else if((rb2YMin >= rb1YMin) && (rb2YMin <= rb1YMax))
     {
         overlapY = fabs(rb2YMin - rb1YMax);
-        rb1Sup = false;
     }
     // Aucune intersection
     else
@@ -148,11 +147,12 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
     // A partir d'ici il y a bien collision
     //
 
-
+    // On détermine les positions relatives des objets
+    rb1Gauche = rb1->position.x < rb2->position.x;
+    rb1Sup = rb1->position.y > rb2->position.y;
 
     // Collision suivant l'axe des abscisses (X)
     if (overlapX < overlapY){
-
         info.interPenetrationDistance = overlapX;
 
         // On détermine le sens de la normale
@@ -252,7 +252,6 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
     // Collision suivant l'axe des ordonnées (Y)
     else
     {
-
         info.interPenetrationDistance = overlapY;
 
         // On détermine le sens de la normale
@@ -357,86 +356,9 @@ bool CollideBoxBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
                 info.contactPosition.x = rb1->position.x - (rb1->collider.dims.x * 0.5f) + overlapX * 0.5f ;
                 info.contactPosition.y = rb1->position.y + (rb1->collider.dims.y * 0.5f);
             }
+//            if(info.debug) std::cout << info.interPenetrationDistance << info.contactPosition << info.contactNormal << std::endl;
         }
     }
-
-    return true;
-}
-
-
-
-bool CollideCircleBox( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
-
-    double overlapX, overlapY;
-
-    double rb1XMin = rb1->position.x - rb1->collider.radius;
-    double rb1XMax = rb1->position.x + rb1->collider.radius;
-    double rb1YMin = rb1->position.y - rb1->collider.radius;
-    double rb1YMax = rb1->position.y + rb1->collider.radius;
-
-    double rb2XMin = rb2->position.x - rb2->collider.dims.x * 0.5f;
-    double rb2XMax = rb2->position.x + rb2->collider.dims.x * 0.5f;
-    double rb2YMin = rb2->position.y - rb2->collider.dims.y * 0.5f;
-    double rb2YMax = rb2->position.y + rb2->collider.dims.y * 0.5f;
-
-    bool rb1sup;//rb1 au dessus de rb2
-
-    /*test d'un overlap en abscisse*/
-
-    if ((rb1XMin >= rb2XMin) && (rb1XMin<=rb2XMax)){
-        overlapX = abs(rb1XMin - rb2XMax);
-    }
-
-    else if ((rb2XMin >= rb1XMin) && (rb2XMin<=rb1XMax)){
-        overlapX = abs(rb2XMin - rb1XMax);
-    }
-
-    else return false;
-
-
-    /*test d'un overlap en ordonnée*/
-
-    if ((rb1YMin >= rb2YMin) && (rb1YMin<=rb2YMax)){
-        overlapY = abs(rb1YMin - rb2YMax);
-        rb1sup = true;
-    }
-
-    else if ((rb2YMin >= rb1YMin) && (rb2YMin<=rb1YMax)){
-        overlapY = abs(rb2YMin - rb1YMax);
-        rb1sup = false;
-    }
-
-    else return false;
-
-    /// à partir de ici il y a bien collision
-
-
-
-
-    if (overlapX < overlapY){
-
-        info.interPenetrationDistance = overlapX;
-
-        if (rb1sup)
-            info.contactNormal = vec2{-1,0};
-        else
-            info.contactNormal = vec2{1,0};
-    }else{
-
-        info.interPenetrationDistance = overlapY;
-
-        if (rb1sup)
-            info.contactNormal = vec2{0,-1};
-        else
-            info.contactNormal = vec2{0,1};
-    }
-
-    info.rb1 = rb1;
-    info.rb2 = rb2;
-
-
-
-    //info.contactPosition = rb1->position + rb1->collider.radius * info.contactNormal;
 
     return true;
 }
@@ -450,47 +372,108 @@ f32 Clamp(f32 v, f32 min, f32 max)
     return v;
 }
 
+std::ostream& operator<< (std::ostream& os, vec2 v)
+{
+    return os << "(" << v.x << ", " << v.y << ")";
+}
 
-bool CollideBoxCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info){
+bool continuousDetectionBox(RigidBody& box, RigidBody& body)
+{
+    Ray ray(body.previousPosition, body.position - body.previousPosition);
 
-    vec2 center_box = rb1->position;
-    vec2 center_cir = rb2->position;
-    f32 radius_cir = rb2->collider.radius;
-    f32 hbw = rb1->collider.dims.x * 0.5; // Half Box Width
-    f32 hbh = rb1->collider.dims.y * 0.5; // Half Box Height
+    // L'objet ne bouge pas
+    if(ray.dir.x == 0 && ray.dir.y == 0)
+    {
+        return false;
+    }
+
+    // L'objet est bien en mouvement
+    f32 x_min = box.position.x - box.collider.dims.x * 0.5;
+    f32 x_max = box.position.x + box.collider.dims.x * 0.5;
+    f32 y_min = box.position.y - box.collider.dims.y * 0.5;
+    f32 y_max = box.position.y + box.collider.dims.y * 0.5;
+
+    f32 t_min = -INFINITY;
+    f32 t_max =  INFINITY;
+    if(ray.dir.x) // L'objet a une composante de déplacement en X
+    {
+        f32 t_x_min = (x_min - ray.pos.x) * ray.invDir.x;
+        f32 t_x_max = (x_max - ray.pos.x) * ray.invDir.x;
+        t_min = std::min(t_x_min, t_x_max);
+        t_max = std::max(t_x_min, t_x_max);
+    }
+    if(ray.dir.y) // L'objet a une composante de déplacement en Y
+    {
+        f32 t_y_min = (y_min - ray.pos.y) * ray.invDir.y;
+        f32 t_y_max = (y_max - ray.pos.y) * ray.invDir.y;
+        t_min = std::max(t_min, std::min(t_y_min, t_y_max));
+        t_max = std::min(t_max, std::max(t_y_min, t_y_max));
+    }
+
+    // Si collision détectée
+    if((t_max > t_min) && (t_min > 0) && (norm(t_min * ray.dir) <= norm(ray.dir)))
+    {
+//        std::cout << x_min << ", " << x_max << " : " << norm(t_min * ray.dir) << ", " << norm(ray.dir);
+//        std::cout << body.previousPosition << body.position << body.previousPosition + ray.dir * t_min << std::endl;
+        body.position = body.previousPosition + ray.dir * t_min;
+//        body.SetKinematic();
+        return true;
+    }
+    return false;
+}
+
+bool CollideBoxCircle( RigidBody* box, RigidBody* cir, CollisionInfo &info){
+
+    // Replace l'objet sur la surface de l'objet détecté
+    continuousDetectionBox(*box, *cir);
+
+    // Calcule l'intersection classique
+    vec2 center_box = box->position;
+    vec2 center_cir = cir->position;
+    f32 radius_cir = cir->collider.radius;
+    f32 hbw = box->collider.dims.x * 0.5; // Half Box Width
+    f32 hbh = box->collider.dims.y * 0.5; // Half Box Height
 
     vec2 v_box_cir = center_cir - center_box; // Vector Box->Circle
-    v_box_cir.x = Clamp(v_box_cir.x, -hbw, hbw);
-    v_box_cir.y = Clamp(v_box_cir.y, -hbh, hbh);
+    vec2 v_clamp_box_cir = vec2{Clamp(v_box_cir.x, -hbw, hbw), Clamp(v_box_cir.y, -hbh, hbh)};
 
-    vec2 contact = (center_box + v_box_cir);
+    vec2 contact = (center_box + v_clamp_box_cir);
 
     vec2 v_cir_contact = contact - center_cir; // Vector Circle->Contact
 
+    // Si intersection détectée
     if(norm(v_cir_contact) <= radius_cir)
     {
-        info.rb1 = rb1;
-        info.rb2 = rb2;
+        info.rb1 = box;
+        info.rb2 = cir;
         info.contactPosition = contact;
 
-        f32 x_min_box = rb1->position.x - rb1->collider.dims.x * 0.5f;
-        f32 x_max_box = rb1->position.x + rb1->collider.dims.x * 0.5f;
-        f32 y_min_box = rb1->position.y - rb1->collider.dims.y * 0.5f;
-        f32 y_max_box = rb1->position.y + rb1->collider.dims.y * 0.5f;
+        f32 x_min_box = box->position.x - box->collider.dims.x * 0.5f;
+        f32 x_max_box = box->position.x + box->collider.dims.x * 0.5f;
+        f32 y_min_box = box->position.y - box->collider.dims.y * 0.5f;
+        f32 y_max_box = box->position.y + box->collider.dims.y * 0.5f;
         // Collision suivant l'axe des abscisses (X)
         if(contact.y > y_min_box && contact.y < y_max_box)
         {
             // (v_box_cir.x < 0) <=> Circle à gauche de Box, donc normale vers la gauche
             //             Sinon <=> Circle à droite de Box, donc normale vers la droite
-            info.contactNormal = vec2{(v_box_cir.x < 0) ? -1.f : 1.f, 0.f};
+            float c = ((v_box_cir.x < 0) ? -1.f : 1.f);
+            info.contactNormal = vec2{c, 0.f};
         }
         // Collision suivant l'axe des ordonnées (Y)
-        if(contact.x > x_min_box && contact.x < x_max_box)
+        else if(contact.x > x_min_box && contact.x < x_max_box)
         {
             // (v_box_cir.y > 0) <=> Circle au dessus  de Box, donc normale vers le haut
             //             Sinon <=> Circle au dessous de Box, donc normale vers le bas
-            info.contactNormal = vec2{0.f, (v_box_cir.y > 0) ? 1.f : -1.f};
+            float c = ((v_box_cir.y > 0) ? 1.f : -1.f);
+            info.contactNormal = vec2{0.f, c};
         }
+        // Collision sur l'angle (TODO : A retravailler)
+        else
+        {
+            info.contactNormal = Normalize(v_box_cir);
+        }
+        info.interPenetrationDistance = radius_cir - norm(contact - center_cir);
         return true;
     }
     return false;
@@ -516,7 +499,7 @@ void CollisionInfo::Solve() const
     vec2 v_rel = (v_b + Cross(w_b, r_b)) - (v_a + Cross(w_a, r_a)); //
 
 //    f32 e = -(m_a * a_a - m_b * a_b) / (m_a * v_a - m_b * v_b);
-    f32 e = 1.f;
+    f32 e = 0.8f;
 
     f32 J = (-(1 + e) * Dot(v_rel, n)) / (im_a + im_b + iI_a * Cross(r_a, n) + iI_b * Cross(r_b, n)); //
 
