@@ -179,6 +179,19 @@ void World::AddBox( vec2 const& pos )
     entities.push_back( entity );
 }
 
+void World::ThrowBox(vec2 const& pos)
+{
+    AddBox(pos);
+    static int v = -1;
+    entities[entities.size() - 1].physics->ApplyImpulse({(v *= -1) * 15.f, 10.f}, {0.f, 0.f});
+}
+
+void World::FixBox(vec2 const& pos)
+{
+    AddBox(pos);
+    entities[entities.size() - 1].physics->SetKinematic();
+}
+
 void World::ThrowBall( vec2 const& pos )
 {
     Entity entity;

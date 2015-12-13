@@ -24,7 +24,9 @@ struct World
     void AddBall( vec2 const& pos );
     void AddBox( vec2 const& pos );
     void ThrowBall( vec2 const& pos );
-    
+    void ThrowBox( vec2 const& pos );
+    void FixBox(vec2 const& pos);
+
     void Update( f32 dt );
     void Render();
     void Cleanup();

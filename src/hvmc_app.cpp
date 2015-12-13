@@ -102,7 +102,20 @@ void HVMC_App::ProcessEvents()
 
         if ( event.button.button == SDL_BUTTON_RIGHT )
         {
-            world.AddBox( pos );
+            SDL_Keymod modifier = SDL_GetModState();
+
+            if ( modifier & KMOD_LCTRL )
+            {
+                world.ThrowBox( pos );
+            }
+            else if(modifier & KMOD_LSHIFT)
+            {
+                world.FixBox(pos);
+            }
+            else
+            {
+                world.AddBox( pos );
+            }
         }
     }
 }

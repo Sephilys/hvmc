@@ -25,7 +25,8 @@ struct CollisionInfo{
     }
 
     void Solve() const;
-
+    void PositionCorrection() const;
+    bool debug;
 };
 
 bool CollideCircleCircle( RigidBody* rb1, RigidBody* rb2, CollisionInfo &info);

@@ -46,7 +46,6 @@ void RigidBody::SetKinematic()
 bool PhysicsSystem::Init()
 {
     gravity = vec2{ 0.f, -9.81f };
-
     return true;
 }
 
@@ -129,29 +128,30 @@ void PhysicsSystem::Update( f32 dt ) {
             RigidBody* b = rigidBodies[j];
             CollisionInfo info;
 
+            // Pour du débug (affichage à partir du premier élément non mural uniquement)
+            info.debug = j > 3;
+
             // Test collisions, add to list if colliding
             if ( Collide( a, b, info ) )
                 collisions.push_back( info );
         }
     }
 
-
-
     // Solve contacts
     for ( auto const& collision : collisions )
         collision.Solve();
-
 
     // Integrate forces
     for ( auto& rb : rigidBodies )
         rb->IntegrateForces( dt );
 
-
-
     // Integrate velocities
     for ( auto& rb : rigidBodies )
         rb->IntegrateVelocities( dt );
 
+    // Position corrections
+    for ( auto const& c : collisions )
+        c.PositionCorrection();
 
     // Clear forces
     for ( auto& rb : rigidBodies )
@@ -161,33 +161,3 @@ void PhysicsSystem::Update( f32 dt ) {
     }
 
 }
-
-    // TODO : Pas sûr de ça...
-//    for(RigidBody* b : rigidBodies)
-//    {
-//        b->ResetForces();
-//    }
-
-
-
-/*bool Collide( RigidBody* a, RigidBody* b, CollisionInfo& info ) {
-
-//    if ( a->collider.type == RIGID_BODY_BOX )
-//    {
-//        if ( b->collider.type == RIGID_BODY_BOX )
-//            return CollideBoxBox( a, b, info );
-//        else if ( b->collider.type == RIGID_BODY_SPHERE )
-//            return CollideBoxSphere( a, b, info );
-//    }
-
-//    else if ( a->collider.type == RIGID_BODY_SPHERE )
-//    {
-//        if ( b->collider.type == RIGID_BODY_SPHERE )
-//            return CollideSphereSphere( a, b, info );
-//        else if ( b->collider.type == RIGID_BODY_BOX )
-//            return CollideSphereBox( a, b, info );
-//    }
-
-    // Should not get there
-    return false;
-}*/
